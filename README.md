@@ -12,11 +12,8 @@ Nasza aplikacja umożliwia zarządzanie zamówieniami oraz częściami w warszta
 
 ## Instalacja
 
-1. Sklonuj to repozytorium na swoim komputerze:
 
-   ```bash
-   git clone &lt;adres-url-twojego-repozytorium&gt;
 
-2. cd mechnix
+1. cd mechnix
 npm install
 npm start
