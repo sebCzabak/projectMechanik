@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TextField, Button } from '@mui/material';
-import axios from 'axios';
+import customerService from '../../services/customerService';
 
-const EditPage = ({ users }) => {
+const EditPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState({
@@ -12,6 +12,20 @@ const EditPage = ({ users }) => {
     lastName: '',
     email: '',
   });
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await customerService.getCustomer(id);
+        setUser(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,35 +35,16 @@ const EditPage = ({ users }) => {
     }));
   };
 
-  const handleSaveChanges = () => {
-    localStorage.setItem('users', JSON.stringify(users));
-    navigate('/admin');
+  const handleSaveChanges = async () => {
+    try {
+      await customerService.updateCustomer(user);
+      navigate('/admin');
+    } catch (error) {
+      setError(error.message);
+    }
   };
-  //   const handleSaveChanges = async () => {
-  //     try {
-  //       // Wysyłamy zaktualizowane dane użytkownika do serwera za pomocą Axiosa
-  //       const response = await axios.put(`URL_do_api/${user.id}`, user);
-
-  //       // Sprawdzamy, czy zapytanie zakończyło się sukcesem
-  //       if (response.status !== 200) {
-  //         throw new Error('Wystąpił błąd podczas aktualizacji danych użytkownika.');
-  //       }
-
-  //       // Pobieramy zaktualizowane dane użytkownika z serwera
-  //       const updatedUserData = response.data;
-
-  //       // Aktualizujemy stan użytkownika na podstawie danych z serwera
-  //       setUser(updatedUserData);
-
-  //       // Przechodzimy z powrotem do strony admina
-  //       navigate('/admin');
-  //     } catch (error) {
-  //       console.error(error.message);
-  //       // Obsłużanie błędów, na przykład wyświetlenie komunikatu dla użytkownika
-  //     }
 
   const handleGoBack = () => {
-    // Powrót do strony admina bez zapisywania zmian
     navigate('/admin');
   };
 
@@ -65,6 +60,7 @@ const EditPage = ({ users }) => {
       }}
     >
       <h2>Edytuj użytkownika</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <form style={{ width: '300px', maxWidth: '80%', marginTop: '20px' }}>
         <TextField
           style={{ marginBottom: '10px' }}

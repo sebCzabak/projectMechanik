@@ -1,4 +1,3 @@
-// AdminPage.js
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -14,20 +13,27 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import EditPage from './EditPage';
-
-// Stała tablica z przykładowymi użytkownikami
-const initialUsers = [
-  { id: 1, firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
-  { id: 2, firstName: 'Jane', lastName: 'Doe', email: 'jane.doe@example.com' },
-  { id: 3, firstName: 'Alice', lastName: 'Smith', email: 'alice.smith@example.com' },
-  { id: 4, firstName: 'Bob', lastName: 'Johnson', email: 'bob.johnson@example.com' },
-];
+import customerService from '../../services/customerService';
 
 const AdminPage = () => {
   const [tabValue, setTabValue] = useState(0);
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [editingUserId, setEditingUserId] = useState(null);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await customerService.getAllCustomers();
+        setUsers(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
 
   // Obsługa zmiany zakładki
   const handleChangeTab = (event, newValue) => {
@@ -65,6 +71,7 @@ const AdminPage = () => {
         <Tab label="Inne" />
       </Tabs>
       <Box hidden={tabValue !== 0}>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
         <TableContainer style={{ maxWidth: '800px', width: '100%' }}>
           <Table>
             <TableHead>

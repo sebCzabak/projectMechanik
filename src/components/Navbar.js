@@ -1,114 +1,69 @@
-// Navbar.js
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { UserContext } from './UserContext';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
+import React, { useState, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 
 const Navbar = () => {
-  const { user, logout } = useContext(UserContext);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Sprawdzenie, czy użytkownik jest zalogowany na podstawie obecności tokenu w localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    authService.logout();
+    setIsLoggedIn(false);
+    navigate('/login');
+  };
 
   return (
     <AppBar position="static">
       <Toolbar>
         <Typography
           variant="h6"
-          component="div"
-          sx={{ flexGrow: 1 }}
+          style={{ flexGrow: 1 }}
         >
-          My App
+          Moja Aplikacja
         </Typography>
-        <Stack
-          direction="row"
-          spacing={2}
-        >
-          <Button
-            color="inherit"
-            component={Link}
-            to="/"
-          >
-            Home
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/services"
-          >
-            Services
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/contact"
-          >
-            Contact
-          </Button>
-          {!user && (
-            <>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/login"
-              >
-                Login
-              </Button>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/register"
-              >
-                Register
-              </Button>
-            </>
-          )}
-          {user && user.role === 'mechanic' && (
-            <Button
-              color="inherit"
-              component={Link}
-              to="/mechanic"
-            >
-              Mechanic Page
-            </Button>
-          )}
-          {user && user.role === 'admin' && (
+        {isLoggedIn ? (
+          <>
             <Button
               color="inherit"
               component={Link}
               to="/admin"
             >
-              Admin Page
+              Admin
             </Button>
-          )}
-          {user && user.role === 'warehouse' && (
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+            >
+              Wyloguj
+            </Button>
+          </>
+        ) : (
+          <>
             <Button
               color="inherit"
               component={Link}
-              to="/warehouse"
+              to="/login"
             >
-              Warehouse Page
+              Zaloguj się
             </Button>
-          )}
-          {user && (
             <Button
               color="inherit"
               component={Link}
-              to="/appointment"
+              to="/register"
             >
-              Złóż zamówienie
+              Zarejestruj się
             </Button>
-          )}
-          {user && (
-            <Button
-              color="inherit"
-              onClick={logout}
-            >
-              Logout
-            </Button>
-          )}
-        </Stack>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

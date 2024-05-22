@@ -1,15 +1,30 @@
 import React, { useState } from 'react';
-import { Box, Typography, TextField, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Box, Typography, TextField, Button, Alert } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Rejestracja...');
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Hasła nie są zgodne.');
+      return;
+    }
+
+    try {
+      await authService.register(email, password);
+      navigate('/login');
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -21,6 +36,14 @@ const RegisterPage = () => {
       >
         Rejestracja
       </Typography>
+      {error && (
+        <Alert
+          severity="error"
+          style={{ marginBottom: '20px' }}
+        >
+          {error}
+        </Alert>
+      )}
       <form
         onSubmit={handleSubmit}
         style={{ maxWidth: '400px', margin: '0 auto' }}
@@ -32,6 +55,7 @@ const RegisterPage = () => {
           onChange={(e) => setEmail(e.target.value)}
           fullWidth
           margin="normal"
+          required
         />
         <TextField
           label="Hasło"
@@ -40,6 +64,7 @@ const RegisterPage = () => {
           onChange={(e) => setPassword(e.target.value)}
           fullWidth
           margin="normal"
+          required
         />
         <TextField
           label="Potwierdź hasło"
@@ -48,6 +73,7 @@ const RegisterPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           fullWidth
           margin="normal"
+          required
         />
         <Button
           type="submit"

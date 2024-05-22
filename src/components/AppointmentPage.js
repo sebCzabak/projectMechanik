@@ -1,5 +1,4 @@
-// AppointmentPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Box,
   Typography,
@@ -11,13 +10,8 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
-
-const services = [
-  { id: 2, value: 'oil_change', label: 'Wymiana oleju' },
-  { id: 1, value: 'check_up', label: 'Przegląd mechaniczny' },
-  { id: 3, value: 'brake_repair', label: 'Naprawa hamulców' },
-  { id: 4, value: 'tire_change', label: 'wymiana opon' },
-];
+import servicesService from '../services/servicesService';
+import { UserContext } from './UserContext';
 
 const AppointmentPage = () => {
   const [firstName, setFirstName] = useState('');
@@ -27,6 +21,22 @@ const AppointmentPage = () => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+  const [availableServices, setAvailableServices] = useState([]);
+  const { user } = useContext(UserContext);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await servicesService.getAllServices();
+        setAvailableServices(data);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        // Możesz obsłużyć błąd w odpowiedni sposób, np. wyświetlając komunikat dla użytkownika
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,61 +60,101 @@ const AppointmentPage = () => {
         onSubmit={handleSubmit}
         style={{ maxWidth: '400px', margin: '0 auto' }}
       >
-        <TextField
-          label="Imię"
-          fullWidth
-          margin="normal"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-        <TextField
-          label="Nazwisko"
-          fullWidth
-          margin="normal"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-        <TextField
-          label="Email"
-          type="email"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextField
-          select
-          label="Usługa"
-          fullWidth
-          margin="normal"
-          value={service}
-          onChange={(e) => setService(e.target.value)}
-        >
-          {services.map((option) => (
-            <MenuItem
-              key={option.value}
-              value={option.value}
+        {user && user.role === 'client' ? (
+          <>
+            <TextField
+              select
+              label="Usługa"
+              fullWidth
+              margin="normal"
+              value={service}
+              onChange={(e) => setService(e.target.value)}
             >
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          label="Data"
-          type="date"
-          fullWidth
-          margin="normal"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-        <TextField
-          label="Godzina"
-          type="time"
-          fullWidth
-          margin="normal"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-        />
+              {availableServices.map((option) => (
+                <MenuItem
+                  key={option.id}
+                  value={option.name}
+                >
+                  {option.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Data"
+              type="date"
+              fullWidth
+              margin="normal"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+            <TextField
+              label="Godzina"
+              type="time"
+              fullWidth
+              margin="normal"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+            />
+          </>
+        ) : (
+          <>
+            <TextField
+              label="Imię"
+              fullWidth
+              margin="normal"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <TextField
+              label="Nazwisko"
+              fullWidth
+              margin="normal"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <TextField
+              label="Email"
+              type="email"
+              fullWidth
+              margin="normal"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+              select
+              label="Usługa"
+              fullWidth
+              margin="normal"
+              value={service}
+              onChange={(e) => setService(e.target.value)}
+            >
+              {availableServices.map((option) => (
+                <MenuItem
+                  key={option.id}
+                  value={option.name}
+                >
+                  {option.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Data"
+              type="date"
+              fullWidth
+              margin="normal"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+            <TextField
+              label="Godzina"
+              type="time"
+              fullWidth
+              margin="normal"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+            />
+          </>
+        )}
         <Button
           type="submit"
           variant="contained"

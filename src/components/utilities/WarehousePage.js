@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Table,
@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
+import productsService from '../../services/productsService';
 
 const WarehousePage = () => {
   const [inventory, setInventory] = useState([
@@ -24,7 +25,19 @@ const WarehousePage = () => {
     { id: 1, serviceName: 'Wymiana oleju', partName: 'Olej silnikowy', quantity: 2 },
     { id: 2, serviceName: 'Naprawa hamulców', partName: 'Klocki hamulcowe', quantity: 1 },
   ]);
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productsService.getAllProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
 
+    fetchProducts();
+  }, []);
   const [completedJobs, setCompletedJobs] = useState([]);
 
   const [showDocument, setShowDocument] = useState(false);

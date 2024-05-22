@@ -1,27 +1,23 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { UserContext } from './UserContext';
-import { Box, Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Box, Typography, TextField, Button, Alert } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 
 const LoginPage = () => {
-  const { login } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(role); // Ustalanie roli użytkownika w kontekście
-    if (role === 'mechanic') {
-      navigate('/mechanic');
-    } else if (role === 'admin') {
-      navigate('/admin');
-    } else if (role === 'warehouse') {
-      navigate('/warehouse');
-    } else {
+    setError('');
+
+    try {
+      await authService.login(email, password);
       navigate('/');
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -34,8 +30,16 @@ const LoginPage = () => {
       >
         Logowanie
       </Typography>
+      {error && (
+        <Alert
+          severity="error"
+          style={{ marginBottom: '20px' }}
+        >
+          {error}
+        </Alert>
+      )}
       <form
-        onSubmit={handleLogin}
+        onSubmit={handleSubmit}
         style={{ maxWidth: '400px', margin: '0 auto' }}
       >
         <TextField
@@ -45,6 +49,7 @@ const LoginPage = () => {
           onChange={(e) => setEmail(e.target.value)}
           fullWidth
           margin="normal"
+          required
         />
         <TextField
           label="Hasło"
@@ -53,21 +58,8 @@ const LoginPage = () => {
           onChange={(e) => setPassword(e.target.value)}
           fullWidth
           margin="normal"
+          required
         />
-        <FormControl
-          fullWidth
-          margin="normal"
-        >
-          <InputLabel>Rola</InputLabel>
-          <Select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <MenuItem value="mechanic">Mechanic</MenuItem>
-            <MenuItem value="admin">Admin</MenuItem>
-            <MenuItem value="warehouse">Warehouse</MenuItem>
-          </Select>
-        </FormControl>
         <Button
           type="submit"
           variant="contained"

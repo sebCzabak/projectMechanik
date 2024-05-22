@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Table, TableContainer, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import servicesService from '../services/servicesService';
 
 const ServicesPage = () => {
-  const services = [
-    { id: 1, name: 'Przegląd mechaniczny', description: 'Pełen przegląd stanu technicznego samochodu', price: '$100' },
-    { id: 2, name: 'Wymiana oleju', description: 'Wymiana oleju silnikowego z filtrem', price: '$50' },
-    { id: 3, name: 'Naprawa hamulców', description: 'Naprawa i wymiana elementów układu hamulcowego', price: '$150' },
-    { id: 4, name: 'Wymiana opon', description: 'Wymiana opon z wyważeniem kół', price: '$80' },
-  ];
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await servicesService.getAllServices();
+        setServices(data);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   return (
     <Box style={{ padding: '20px' }}>
