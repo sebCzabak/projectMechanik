@@ -1,4 +1,4 @@
-#Instalation 
+# Instalation 
 cd mechnix npm install npm start
 # Getting Started with Create React App
 
